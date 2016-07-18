@@ -3,6 +3,8 @@ info='wj (workjournal) // 2016-07-17 Y.Bonetti // see gitlab.com/yargo/wj'
 wjf="${WJCOUNTERS:-$HOME/.wjcounters}"
 tmpf="$wjf.tmp"
 bupf="$wjf.bak"
+# special counter name for grand total
+cntot='-total-'
 
 # now as seconds since epoch (1970-1-1)
 now=`date +%s`
@@ -84,7 +86,7 @@ cat "$wjf" | { totmin=0 ; summin=0
  while read cnt csum cstart crem
  do case $cnt in
   ''|'#') ;; # skip comments and empty lines
-  *) if test X$cnt != X-total-
+  *) if test X$cnt != X$cntot
 # add all mentioned counters
    then if `echo "$cntrs" | grep " $cnt " >/dev/null 2>&1`
     then summin=`expr $summin + $csum`
@@ -96,7 +98,7 @@ cat "$wjf" | { totmin=0 ; summin=0
  done
  echo
 # remove general counter for summation
- cntrs=`echo "$cntrs" | sed -e 's/-total-//g'`
+ cntrs=`echo "$cntrs" | sed -e "s/$cntot//g"`
 # remove leading and trailing SPCs
  cntrs=${cntrs## }
  cntrs=${cntrs%% }
@@ -115,7 +117,7 @@ then showreport
 fi
 
 # add general counter
-cntrs=' -total-'
+cntrs=" $cntot"
 
 # read all arguments
 while test "$1" != ""
@@ -164,7 +166,7 @@ for cnt in $cntrs
 # names must be at beginning of lines and followed by SPC or TAB
 do if ! grep -e "^$cnt[	 ]" "$wjf" >/dev/null 2>&1
  then if test X$quiet = Xyes
-  then if test X$cnt = X-total-
+  then if test X$cnt = X$cntot
    then crem='# general/total counter'
    else crem='# [unknown]'
    fi
