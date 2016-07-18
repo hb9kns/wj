@@ -84,17 +84,19 @@ cat "$wjf" | { totmin=0 ; summin=0
  while read cnt csum cstart crem
  do case $cnt in
   ''|'#') ;; # skip comments and empty lines
-  *) totmin=`expr $totmin + $csum`
+  *) if test X$cnt != X-total-
 # add all mentioned counters
-   if `echo "$cntrs" | grep " $cnt " >/dev/null 2>&1`
-   then summin=`expr $summin + $csum`
+   then if `echo "$cntrs" | grep " $cnt " >/dev/null 2>&1`
+    then summin=`expr $summin + $csum`
+    fi
    fi
    echo "$cnt	`calctime $csum`	$crem"
    ;;
   esac
  done
  echo
- echo "	total: `calctime $totmin`"
+# remove general counter for summation
+ cntrs=`echo "$cntrs" | sed -e 's/-total-//g'`
 # remove leading and trailing SPCs
  cntrs=${cntrs## }
  cntrs=${cntrs%% }
@@ -111,6 +113,9 @@ then showreport
  echo '# option -h for help'
  exit 1
 fi
+
+# add general counter
+cntrs=' -total-'
 
 # read all arguments
 while test "$1" != ""
@@ -159,7 +164,10 @@ for cnt in $cntrs
 # names must be at beginning of lines and followed by SPC or TAB
 do if ! grep -e "^$cnt[	 ]" "$wjf" >/dev/null 2>&1
  then if test X$quiet = Xyes
-  then crem='# [unknown]'
+  then if test X$cnt = X-total-
+   then crem='# general/total counter'
+   else crem='# [unknown]'
+   fi
   else
    echo "counter $cnt yet unknown, please enter description:"
    read crem
@@ -180,10 +188,6 @@ if test X$report = Xyes
 then showreport
  rm -f "$tmpf"
  exit
-fi
-
-if test "$cntrs" != ""
-then echo counters: $cntrs
 fi
 
 # process workjournal lines
