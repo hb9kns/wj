@@ -32,6 +32,8 @@ usage: $0 [-command/option [-option ...]] [counter [counter ...]]
 
 counters are stored in '$wjf'
 with backup in '$bupf'
+(feel free to remove any unwanted counter with a text editor,
+but better not add/modify any lines to prevent malfunctioning)
 
 EOH
 } # showhelp
@@ -128,7 +130,7 @@ do case $1 in
  -c*) continue=yes ;;
  -zero) allzero=yes ;;
  -a*) addmins=${1#-a} ;;
- -) allstop=yes ;;
+ -|'.') allstop=yes ;;
  -*) echo ":: ignoring unknown command/option $1" ;;
  *) cntrs="$cntrs $1" ;;
  esac
