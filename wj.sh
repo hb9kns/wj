@@ -177,12 +177,15 @@ do if ! grep -e "^$cnt[	 ]" "$wjf" >/dev/null 2>&1
    else crem='# [unknown]'
    fi
   else
-   echo "counter $cnt yet unknown, please enter description:"
+   echo ": counter '$cnt' unknown, description? (. will remove counter)"
    read crem
    crem="# $crem"
   fi # quiet
 # add counter entry
-  writeln
+  if test "$crem" = "# ."
+  then echo ": counter $cnt not added!"
+  else writeln
+  fi
  fi # grep
 done
 
