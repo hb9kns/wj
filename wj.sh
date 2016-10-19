@@ -1,8 +1,10 @@
 #!/bin/sh
-info='wj (workjournal) // 2016-07-17 Y.Bonetti // see gitlab.com/yargo/wj'
+info='wj (workjournal) // 2016-10-19 Y.Bonetti // see gitlab.com/yargo/wj'
 wjf="${WJCOUNTERS:-$HOME/.wjcounters}"
 tmpf="$wjf.tmp"
 bupf="$wjf.bak"
+editor=${VISUAL:-$EDITOR}
+editor=${editor:-/bin/ed -p:}
 # special counter name for grand total
 cntot='-total-'
 
@@ -17,6 +19,7 @@ showhelp() { cat <<EOH
 usage: $0 [-command/option [-option ...]] [counter [counter ...]]
 
  -h[elp] : this help
+ -e[dit] : open counter file with $editor, then continue processing
  -r[eport] : display current status of counters, also if no argument given
  -[stop] : stop all counters (note: also a single '.' will do)
  -c[ontinue] : start all given counters, while also keeping running counters
@@ -25,15 +28,15 @@ usage: $0 [-command/option [-option ...]] [counter [counter ...]]
  -zero : reset all counters to zero
  if no command given, start all counters given and stop running ones
 
-- counter values are displayed as hours:minutes=totalminutes
-- all counter names yet unknown are prompted for, unless -q option is given
-- option -a can be used for correcting/preloading counters (e.g -a20 or -a-5)
-- more than one command given may result in unexpected behaviour, except for -q
+* counter values are displayed as hours:minutes=totalminutes
+* all counter names yet unknown are prompted for, unless -q option is given
+* option -a can be used for correcting/preloading counters (e.g -a20 or -a-5)
+* more than one command given may result in unexpected behaviour, except for -q
 
-counters are stored in '$wjf'
-with backup in '$bupf'
-(feel free to remove any unwanted counter with a text editor,
-but better not add/modify any lines to prevent malfunctioning)
+* counters are stored in counter file '$wjf'
+  with backup in '$bupf'
+  (feel free to remove any unwanted counter with a text editor,
+  but better not add/modify any lines to prevent malfunctioning)
 
 EOH
 } # showhelp
@@ -87,7 +90,7 @@ showreport() {
 cat "$wjf" | { totmin=0 ; summin=0
  while read cnt csum cstart crem
  do case $cnt in
-  ''|'#') ;; # skip comments and empty lines
+  ''|\#|\#*) ;; # skip comments and empty lines
   *) if test X$cnt != X$cntot
 # add all mentioned counters
    then if `echo "$cntrs" | grep " $cnt " >/dev/null 2>&1`
@@ -125,6 +128,7 @@ cntrs=" $cntot"
 while test "$1" != ""
 do case $1 in
  -h*) showhelp ; exit 1 ;;
+ -e*) $editor "$wjf" ;;
  -q*) quiet=yes ;;
  -r*) report=yes ;;
  -c*) continue=yes ;;
@@ -195,8 +199,14 @@ then showreport
 fi
 
 # process workjournal lines
-cat "$wjf" | { while read cnt csum cstart crem
+cat "$wjf" | { foundzeroed=no
+while read cnt csum cstart crem
 do case $cnt in
+  '#zeroed') foundzeroed=yes
+   if test X$allzero = Xyes
+   then echo '#zeroed at' `date` >> "$tmpf" # add start time
+   else echo $cnt $csum $cstart $crem >> "$tmpf" # copy old start time
+   fi ;;
   '#') echo $cnt $csum $cstart $crem >> "$tmpf" ;; # copy comment lines
   '') ;; # skip empty lines
   *) # process counter entry
@@ -215,6 +225,9 @@ do case $cnt in
 # clear if -zero
    if test X$allzero = Xyes
    then csum=0 ; cstart=0
+    if test X$foundzeroed = Xno
+    then echo '#zeroed' >> "$tmpf"
+    fi
    fi
    writeln
    ;;
