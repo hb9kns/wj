@@ -19,7 +19,7 @@ showhelp() { cat <<EOH
 usage: $0 [-command/option [-option ...]] [counter [counter ...]]
 
  -h[elp] : this help
- -e[dit] : open counter file with $editor, then continue processing
+ -e[dit] : open counter file with $editor, then report
  -r[eport] : display current status of counters, also if no argument given
  -[stop] : stop all counters (note: also a single '.' will do)
  -c[ontinue] : start all given counters, while also keeping running counters
@@ -128,7 +128,7 @@ cntrs=" $cntot"
 while test "$1" != ""
 do case $1 in
  -h*) showhelp ; exit 1 ;;
- -e*) $editor "$wjf" ;;
+ -e*) $editor "$wjf" ; report=yes ;;
  -q*) quiet=yes ;;
  -r*) report=yes ;;
  -c*) continue=yes ;;
@@ -147,7 +147,7 @@ cntrs="$cntrs "
 addmins=`echo "$addmins"|tr -cd '0-9-'`
 addmins=$((addmins+0))
 if test $addmins != 0
-then echo addmins=$addmins
+then echo ": add $addmins mins"
 fi
 
 # initialize workjournal if not readable
