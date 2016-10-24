@@ -16,17 +16,17 @@ showhelp() { cat <<EOH
 
 ## $info ##
 
-usage: $0 [-command/option [-option ...]] [counter [counter ...]]
+usage: $0 [-command/option ] [counter ...]
 
  -h[elp] : this help
  -e[dit] : open counter file with $editor, then report
- -r[eport] : display current status of counters, also if no argument given
+ -r[eport] : display current status of counters (running are marked with '*')
  -[stop] : stop all counters (note: also a single '.' will do)
  -c[ontinue] : start all given counters, while also keeping running counters
  -q[uiet] : don't prompt for any user input
  -a[dd]M : add M minutes to all given counters (last -a option overrides all)
  -zero : reset all counters to zero
- if no command given, start all counters given and stop running ones
+ if no command given, start all counters given, stop running ones, and report
 
 * counter values are displayed as hours:minutes=totalminutes
 * all counter names yet unknown are prompted for, unless -q option is given
@@ -97,7 +97,12 @@ cat "$wjf" | { totmin=0 ; summin=0
     then summin=`expr $summin + $csum`
     fi
    fi
-   echo "$cnt	`calctime $csum`	$crem"
+   if test ${cstart:-0} -gt 0
+# flag running counters
+   then runflg='*'
+   else runflg=''
+   fi
+   echo "$cnt	`calctime $csum`$runflg	$crem"
    ;;
   esac
  done
