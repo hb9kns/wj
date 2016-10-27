@@ -27,6 +27,8 @@ whenever any counter is started, and stopped when all counters are stopped.
 It therefore contains the total time journalling has been used.
 (This name has been chosen because it is difficult to enter as argument.)
 
+Environment variable WJCOUNTERS may contain a different file name.
+
 ---
 
 _old-wj.pl is here for historical reasons: Initially, I used a Perl version of the script, but I don't maintain it any longer._

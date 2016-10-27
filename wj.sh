@@ -27,14 +27,13 @@ usage: $0 [-command/option ] [counter ...]
  -a[dd]M : add M minutes to all given counters (last -a option overrides all)
  -zero : reset all counters to zero
  if no command given, start all counters given, stop running ones, and report
+ if no argument given, report only
 
-* counter values are displayed as hours:minutes=totalminutes
-* all counter names yet unknown are prompted for, unless -q option is given
+* counter values are displayed as "minutes (hrs:mins)"
+* counter names yet unknown are prompted for, unless -q option is given
 * option -a can be used for correcting/preloading counters (e.g -a20 or -a-5)
-* more than one command given may result in unexpected behaviour, except for -q
-
-* counters are stored in counter file '$wjf'
-  with backup in '$bupf'
+* counters are stored in file '$wjf'
+  (or WJCOUNTERS), backup in '$bupf'
   (feel free to remove any unwanted counter with a text editor,
   but better not add/modify any lines to prevent malfunctioning)
 
@@ -49,7 +48,7 @@ writeln() { echo "$cnt	$csum	$cstart	$crem" >> "$tmpf" ; }
 cntstart() {
 #echo : before cntstart: $cnt $csum $cstart
 # add argument, if present
- csum=`expr $csum + ${1:-0}`
+ csum=$(( csum+${1:-0} ))
 # current start time = 0 ?
  if test X$cstart = X0
 # then start at current number of seconds since epoch (1970-Jan-1)
@@ -65,8 +64,8 @@ cntstop() {
 # current start time != 0 ?
  if test X$cstart != X0
  then
-# calculate lapsed minutes
-  csum=`expr '(' $now - $cstart + 30 ')' / 60 + $csum`
+# calculate lapsed minutes with rounding to nearest minute
+  csum=$(( (now-cstart+30)/60+csum ))
 # and stop counter
   cstart=0
 # else don't change anything, counter already stopped
@@ -77,8 +76,8 @@ cntstop() {
 # convert minutes for report
 calctime() {
  local hrs mins
- hrs=`expr ${1:-0} / 60`
- mins=`expr ${1:-0} % 60`
+ hrs=$(( ${1:-0}/60 ))
+ mins=$(( ${1:-0}%60 ))
  if test $mins -le 9
  then mins="0$mins"
  fi
@@ -94,7 +93,7 @@ cat "$wjf" | { totmin=0 ; summin=0
   *) if test X$cnt != X$cntot
 # add all mentioned counters
    then if `echo "$cntrs" | grep " $cnt " >/dev/null 2>&1`
-    then summin=`expr $summin + $csum`
+    then summin=$(( summin+csum ))
     fi
    fi
    if test ${cstart:-0} -gt 0
@@ -150,7 +149,7 @@ done
 cntrs="$cntrs "
 
 addmins=`echo "$addmins"|tr -cd '0-9-'`
-addmins=$((addmins+0))
+addmins=$(( addmins+0 ))
 if test $addmins != 0
 then echo ": add $addmins mins"
 fi
