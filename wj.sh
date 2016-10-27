@@ -1,5 +1,5 @@
 #!/bin/sh
-info='wj (workjournal) // 2016-10-19 Y.Bonetti // see gitlab.com/yargo/wj'
+info='wj (workjournal) // 2016-10-27 Y.Bonetti // see gitlab.com/yargo/wj'
 wjf="${WJCOUNTERS:-$HOME/.wjcounters}"
 tmpf="$wjf.tmp"
 bupf="$wjf.bak"
