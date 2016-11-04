@@ -86,9 +86,12 @@ calctime() {
 
 
 showreport() {
+echo
+date '+## wj report at %c'
 cat "$wjf" | { totmin=0 ; summin=0
  while read cnt csum cstart crem
  do case $cnt in
+  \#zeroed*) echo "###  $cnt $csum $cstart $crem" ; echo ;;
   ''|\#|\#*) ;; # skip comments and empty lines
   *) if test X$cnt != X$cntot
 # add all mentioned counters
@@ -211,7 +214,7 @@ while read cnt csum cstart crem
 do case $cnt in
   '#zeroed') foundzeroed=yes
    if test X$allzero = Xyes
-   then echo '#zeroed at' `date` >> "$tmpf" # add start time
+   then echo '#zeroed at' `date +%c` >> "$tmpf" # add start time
    else echo $cnt $csum $cstart $crem >> "$tmpf" # copy old start time
    fi ;;
   '#') echo $cnt $csum $cstart $crem >> "$tmpf" ;; # copy comment lines
