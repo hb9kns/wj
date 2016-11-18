@@ -11,6 +11,9 @@ cntot='-total-'
 # now as seconds since epoch (1970-1-1)
 now=`date +%s`
 
+# machine running this script
+hostn=${HOST:-unknown machine}
+
 # define usage information
 showhelp() { cat <<EOH
 
@@ -84,7 +87,7 @@ calctime() {
  echo "$1 ($hrs:$mins)"
 }
 
-
+# process workfile and show report with calculated hours and minutes
 showreport() {
 echo
 date '+## wj report at %c'
@@ -121,6 +124,18 @@ cat "$wjf" | { totmin=0 ; summin=0
  }
 } # showreport
 
+
+# initialize workjournal unless non-zero file
+if test ! -s "$wjf"
+then cat <<EOH > "$wjf"
+# initialized on `date` by
+# $info
+#zeroed
+#modified at initialization on $hostn
+EOH
+echo :: $wjf was empty and is now initialized
+fi
+
 # if no argument at all, display report and hint for help
 if test "$1" = ""
 then showreport
@@ -155,14 +170,6 @@ addmins=`echo "$addmins"|tr -cd '0-9-'`
 addmins=$(( addmins+0 ))
 if test $addmins != 0
 then echo ": add $addmins mins"
-fi
-
-# initialize workjournal if not readable
-if test ! -r "$wjf"
-then cat <<EOH > "$wjf"
-# initialized on `date` by
-# $info
-EOH
 fi
 
 # clear tempfile
@@ -217,6 +224,9 @@ do case $cnt in
    then echo '#zeroed at' `date +%c` >> "$tmpf" # add start time
    else echo $cnt $csum $cstart $crem >> "$tmpf" # copy old start time
    fi ;;
+  '#modified')
+   echo '#modified' `date +%c` on $hostn >> "$tmpf" # add modification time
+   ;;
   '#') echo $cnt $csum $cstart $crem >> "$tmpf" ;; # copy comment lines
   '') ;; # skip empty lines
   *) # process counter entry
