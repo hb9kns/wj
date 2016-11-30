@@ -11,8 +11,8 @@ cntot='-total-'
 # now as seconds since epoch (1970-1-1)
 now=`date +%s`
 
-# machine running this script
-hostn=${HOST:-unknown machine}
+# host running this script
+hostn=${HOST:-unknown host}
 
 # define usage information
 showhelp() { cat <<EOH
@@ -63,14 +63,17 @@ cntstart() {
 
 # stop counter and add lapsed minutes
 cntstop() {
+ local delta
 #echo : before cntstop: $cnt $csum $cstart
 # current start time != 0 ?
  if test X$cstart != X0
  then
 # calculate lapsed minutes with rounding to nearest minute
-  csum=$(( (now-cstart+30)/60+csum ))
+  delta=$(( (now-cstart+30)/60 ))
+  csum=$(( csum+delta ))
 # and stop counter
   cstart=0
+  echo : $cnt : $csum +$delta
 # else don't change anything, counter already stopped
  fi
 #echo : after cntstop: $cnt $csum $cstart
