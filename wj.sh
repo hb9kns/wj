@@ -73,7 +73,7 @@ cntstop() {
   csum=$(( csum+delta ))
 # and stop counter
   cstart=0
-  echo : $cnt : $csum +$delta
+  echo : $cnt + $delta = $csum
 # else don't change anything, counter already stopped
  fi
 #echo : after cntstop: $cnt $csum $cstart
