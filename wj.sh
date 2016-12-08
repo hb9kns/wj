@@ -110,7 +110,7 @@ cat "$wjf" | { totmin=0 ; summin=0
    then runflg='*'
    else runflg=''
    fi
-   echo "$cnt	`calctime $csum`$runflg	$crem"
+   echo "$runflg$cnt	`calctime $csum`$runflg	$crem"
    ;;
   esac
  done
