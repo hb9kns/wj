@@ -31,6 +31,12 @@ It therefore contains the total time journalling has been used.
 
 - `WJCOUNTERS` : alternative file name instead of `$HOME/.wjcounters`
 - `HOST` : hostname that will be reported in the comments section as host of last modification; if unset, the output of `hostname` will be used
+- `VISUAL`, `EDITOR` : used as editor (VISUAL takes precedence); if unset, `/bin/ed -p:` will be used
+
+## used/necessary command line tools
+
+The script needs the command line tools `date, tr, sed, grep`
+to be available and working in the usual POSIX manner.
 
 ---
 
