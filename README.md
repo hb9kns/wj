@@ -3,7 +3,7 @@
 This is a small shell script for keeping track of time spent on different
 tasks or projects, with time resolution in minutes.
 
-_While this README is under construction, running the script with option `-h` should give enough information for its use._
+Running the script with option `-h` should give enough information for its use.
 
 ## file structure
 
@@ -15,7 +15,7 @@ following structure:
 	cntr	123	0	# counter description
 
 Lines not starting with `#` are counter lines, with fields separated by
-`TAB` (^H).
+<TAB> (^I).
 
 - The first field is the counter index/name (only reasonable characters are allowed; your best bet is to use the set 0-9a-zA-Z- only); it must be unique.
 - The second field is the number of minutes the counter has been running already.
@@ -27,7 +27,10 @@ whenever any counter is started, and stopped when all counters are stopped.
 It therefore contains the total time journalling has been used.
 (This name has been chosen because it is difficult to enter as argument.)
 
-Environment variable WJCOUNTERS may contain a different file name.
+## environment variables
+
+- `WJCOUNTERS` : alternative file name instead of `$HOME/.wjcounters`
+- `HOST` : hostname that will be reported in the comments section as host of last modification; if unset, the output of `hostname` will be used
 
 ---
 
@@ -35,5 +38,5 @@ _old-wj.pl is here for historical reasons: Initially, I used a Perl version of t
 
 ---
 
-_(2016 Y.Bonetti)_
+_(2017-June, Y.Bonetti)_
 
