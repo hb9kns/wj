@@ -1,5 +1,5 @@
 #!/bin/sh
-info='wj (workjournal) // 2016-11-18 Y.Bonetti // see gitlab.com/yargo/wj'
+info='wj (workjournal) // 2017-06-07 Y.Bonetti // see gitlab.com/yargo/wj'
 wjf="${WJCOUNTERS:-$HOME/.wjcounters}"
 tmpf="$wjf.tmp"
 bupf="$wjf.bak"
@@ -12,7 +12,7 @@ cntot='-total-'
 now=`date +%s`
 
 # host running this script
-hostn=${HOST:-unknown host}
+hostn=${HOST:-`hostname`}
 
 # define usage information
 showhelp() { cat <<EOH
