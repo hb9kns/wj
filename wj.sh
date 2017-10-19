@@ -1,5 +1,5 @@
 #!/bin/sh
-info='wj (workjournal) // 2017-06-07 Y.Bonetti // see gitlab.com/yargo/wj'
+info='wj (workjournal) // 2017-10-19 Y.Bonetti // see gitlab.com/yargo/wj'
 wjf="${WJCOUNTERS:-$HOME/.wjcounters}"
 tmpf="$wjf.tmp"
 bupf="$wjf.bak"
@@ -24,6 +24,7 @@ usage: $0 [-command/option ] [counter ...]
  -h[elp] : this help
  -e[dit] : open counter file with $editor, then report
  -r[eport] : display current status of counters (running are marked with '*')
+ -p[ercentage] : same as r[eport], but with percentages of total
  -[stop] : stop all counters (note: also a single '.' will do)
  -c[ontinue] : start all given counters, while also keeping running counters
  -q[uiet] : don't prompt for any user input
@@ -39,7 +40,6 @@ usage: $0 [-command/option ] [counter ...]
   (or WJCOUNTERS), backup in '$bupf'
   (feel free to remove any unwanted counter with a text editor,
   but better not add/modify any lines to prevent malfunctioning)
-
 EOH
 } # showhelp
 
@@ -51,7 +51,7 @@ writeln() { echo "$cnt	$csum	$cstart	$crem" >> "$tmpf" ; }
 cntstart() {
 #echo : before cntstart: $cnt $csum $cstart
 # add argument, if present
- csum=$(( csum+${1:-0} ))
+ csum=$(( $csum+${1:-0} ))
 # current start time = 0 ?
  if test X$cstart = X0
 # then start at current number of seconds since epoch (1970-Jan-1)
@@ -69,8 +69,8 @@ cntstop() {
  if test X$cstart != X0
  then
 # calculate lapsed minutes with rounding to nearest minute
-  delta=$(( (now-cstart+30)/60 ))
-  csum=$(( csum+delta ))
+  delta=$(( ($now-$cstart+30)/60 ))
+  csum=$(( $csum+$delta ))
 # and stop counter
   cstart=0
   echo : $cnt + $delta = $csum
@@ -90,19 +90,68 @@ calctime() {
  echo "$1 ($hrs:$mins)"
 }
 
+# convert into percentage for report
+calcperc() {
+ local p ps
+# calculate to 1/10 percent with rounding
+ p=$(( (10000*$1/$2+5)/10 ))
+# insert dot before last figure
+ ps=`echo $p|sed -e 's/\(.\)$/.\1/'`
+# prepend 0 or leading spaces
+ if test $p -lt 10
+ then ps="0$ps"
+ fi
+ if test $p -lt 100
+ then ps=" $ps"
+ fi
+ if test $p -lt 1000
+ then ps=" $ps"
+ fi
+ echo "$ps"
+}
+
+# helper for showreport: only display if not only summing
+echono() {
+ if test "$1" = "no"
+ then shift
+  echo "$@"
+ fi
+}
+
 # process workfile and show report with calculated hours and minutes
+#  if argument 'onlysum' is given, calculate total without general counter
+#  if arguments 'percent' 'NNNN' are given, show report with percentages
+#   based on NNNN instead of absolute time
 showreport() {
-echo
-date '+## wj report at %c'
+local os pbase
+os=no
+pbase=''
+case $1 in
+ onlysum) os=yes ;;
+ percent) pbase=$2
+  if test "$pbase" = "" -o "$pbase" = "0"
+  then ":: error: cannot count percentage with base value of '$pbase'"
+   pbase=''
+  fi
+  ;;
+esac
+echono $os
+if test $os = no
+then
+ date '+## wj report at %c'
+fi
 cat "$wjf" | { totmin=0 ; summin=0
  while read cnt csum cstart crem
  do case $cnt in
-  \#zeroed*) echo "###  $cnt $csum $cstart $crem" ; echo ;;
+  \#zeroed*) echono $os "###  $cnt $csum $cstart $crem" ; echono $os ;;
   ''|\#|\#*) ;; # skip comments and empty lines
+# except for general counter...
   *) if test X$cnt != X$cntot
-# add all mentioned counters
-   then if `echo "$cntrs" | grep " $cnt " >/dev/null 2>&1`
-    then summin=$(( summin+csum ))
+# ...add all to totmin
+   then totmin=$(( $totmin+$csum ))
+# ...add all mentioned to summin
+    if `echo "$cntrs" | grep " $cnt " >/dev/null 2>&1`
+    then summin=$(( $summin+$csum ))
     fi
    fi
    if test ${cstart:-0} -gt 0
@@ -110,19 +159,28 @@ cat "$wjf" | { totmin=0 ; summin=0
    then runflg='*'
    else runflg=''
    fi
-   echo "$runflg$cnt	`calctime $csum`$runflg	$crem"
+   if test "$pbase" != ""
+# report percent values relative to base
+   then echono $os "$runflg$cnt	`calcperc $csum $pbase`	$runflg	$crem"
+# report absolute values in mins and hours:mins
+   else echono $os "$runflg$cnt	`calctime $csum`$runflg	$crem"
+   fi
    ;;
   esac
  done
- echo
+ echono $os
 # remove general counter for summation
  cntrs=`echo "$cntrs" | sed -e "s/$cntot//g"`
 # remove leading and trailing SPCs
  cntrs=${cntrs## }
  cntrs=${cntrs%% }
- if test "$cntrs" != ""
+ if test "$cntrs" != "" -a $os = no
  then echo "	$cntrs=" | tr ' ' +
  calctime $summin | sed -e 's/^/		/'
+ fi
+# if onlysum, just report total time for further processing
+ if test $os = yes
+ then echo $totmin
  fi
  }
 } # showreport
@@ -156,6 +214,7 @@ do case $1 in
  -e*) $editor "$wjf" ; report=yes ;;
  -q*) quiet=yes ;;
  -r*) report=yes ;;
+ -p*) percent=yes ; report=yes ;;
  -c*) continue=yes ;;
  -zero) allzero=yes ;;
  -a*) addmins=${1#-a} ;;
@@ -170,7 +229,7 @@ done
 cntrs="$cntrs "
 
 addmins=`echo "$addmins"|tr -cd '0-9-'`
-addmins=$(( addmins+0 ))
+addmins=$(( $addmins+0 ))
 if test $addmins != 0
 then echo ": add $addmins mins"
 fi
@@ -211,9 +270,16 @@ cat "$tmpf" >> "$wjf"
 # clear tmpfile for next pass
 : > "$tmpf"
 
+if test X$percent = Xyes
+# for percentage, first sum all counters
+then pbase="percent `showreport onlysum`"
+# else set empty base which will result in absolute values reported
+else pbase=''
+fi
+
 # report should not change anything, therefore finish after display
 if test X$report = Xyes
-then showreport
+then showreport $pbase
  rm -f "$tmpf"
  exit
 fi
