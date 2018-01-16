@@ -1,5 +1,5 @@
 #!/bin/sh
-info='wj (workjournal) // 2017-10-19 Y.Bonetti // see gitlab.com/yargo/wj'
+info='wj (workjournal) // 2018-01-16 Y.Bonetti // see gitlab.com/yargo/wj'
 wjf="${WJCOUNTERS:-$HOME/.wjcounters}"
 tmpf="$wjf.tmp"
 bupf="$wjf.bak"
@@ -84,10 +84,13 @@ calctime() {
  local hrs mins
  hrs=$(( ${1:-0}/60 ))
  mins=$(( ${1:-0}%60 ))
+# decihours, rounded
+ dhrs=$(( ($mins*10+30)/60 ))
  if test $mins -le 9
  then mins="0$mins"
  fi
- echo "$1 ($hrs:$mins)"
+# echo "$1 ($hrs:$mins)"
+ echo "$1 ($hrs.$dhrs)"
 }
 
 # convert into percentage for report
