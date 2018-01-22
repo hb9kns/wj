@@ -1,5 +1,5 @@
 #!/bin/sh
-info='wj (workjournal) // 2018-01-16 Y.Bonetti // see gitlab.com/yargo/wj'
+info='wj (workjournal) // 2018-01-23 Y.Bonetti // see gitlab.com/yargo/wj'
 wjf="${WJCOUNTERS:-$HOME/.wjcounters}"
 tmpf="$wjf.tmp"
 bupf="$wjf.bak"
@@ -33,7 +33,7 @@ usage: $0 [-command/option ] [counter ...]
  if no command given, start all counters given, stop running ones, and report
  if no argument given, report only
 
-* counter values are displayed as "minutes (hrs:mins)"
+* counter values are displayed as "minutes (HH.D)" (hours.decihours)
 * counter names yet unknown are prompted for, unless -q option is given
 * option -a can be used for correcting/preloading counters (e.g -a20 or -a-5)
 * counters are stored in file '$wjf'
@@ -85,12 +85,13 @@ calctime() {
  hrs=$(( ${1:-0}/60 ))
  mins=$(( ${1:-0}%60 ))
 # decihours, rounded
- dhrs=$(( ($mins*10+30)/60 ))
+ dhrs=$(( (${1:-0}+3)/6 ))
+ dhrs=$(( $dhrs/10 )).$(( $dhrs%10 ))
  if test $mins -le 9
  then mins="0$mins"
  fi
 # echo "$1 ($hrs:$mins)"
- echo "$1 ($hrs.$dhrs)"
+ echo "$1 ($dhrs)"
 }
 
 # convert into percentage for report
