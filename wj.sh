@@ -1,5 +1,5 @@
 #!/bin/sh
-info='wj (workjournal) // 2018-01-23 Y.Bonetti // see gitlab.com/yargo/wj'
+info='wj (workjournal) // 2018-04-26 Y.Bonetti // see gitlab.com/yargo/wj'
 wjf="${WJCOUNTERS:-$HOME/.wjcounters}"
 tmpf="$wjf.tmp"
 bupf="$wjf.bak"
@@ -210,6 +210,9 @@ fi
 
 # add general counter
 cntrs=" $cntot"
+
+# report current date for info
+date '+# wj // %c' >&2
 
 # read all arguments
 while test "$1" != ""
