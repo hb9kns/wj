@@ -20,7 +20,7 @@ Lines not starting with `#` are counter lines, with fields separated by
 
 - The first field is the counter index/name (only reasonable characters are allowed; your best bet is to use the set 0-9a-zA-Z- only); it must be unique.
 - The second field is the number of minutes the counter has been running already.
-- The third field contains the number of seconds since epoch (normally January 1, 1970) if the counter has been started, or 0 if it is currently stopped.
+- The third field contains the number of minutes since epoch (normally January 1, 1970) if the counter has been started, or 0 if it is currently stopped.
 - The fourth field must be preceded with `#` if present, and contains the description of the counter.
 
 The journal file normally contains a counter named `-total-` which is started
@@ -45,4 +45,4 @@ _old-wj.pl is here for historical reasons: Initially, I used a Perl version of t
 
 ---
 
-_(2017-October, Y.Bonetti)_
+_(2019-9-27 / Y.Bonetti)_

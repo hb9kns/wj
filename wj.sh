@@ -1,15 +1,16 @@
 #!/bin/sh
-info='wj (workjournal) // 2018-04-26 Y.Bonetti // see gitlab.com/yargo/wj'
+info='wj (workjournal) // 2019-09-27 HB9KNS // git://dome.circumlunar.space/~hb9kns/wj'
 wjf="${WJCOUNTERS:-$HOME/.wjcounters}"
-tmpf="$wjf.tmp"
+tmpf=${TMPDIR:-/tmp}/.wj-$USER-$$.tmp
 bupf="$wjf.bak"
 editor=${VISUAL:-$EDITOR}
 editor=${editor:-/bin/ed -p:}
 # special counter name for grand total
 cntot='-total-'
 
-# now as seconds since epoch (1970-1-1)
+# now as seconds since epoch (1970-1-1) and as rounded minutes
 now=`date +%s`
+nowm=$(( ($now+30)/60 ))
 
 # host running this script
 hostn=${HOST:-`hostname`}
@@ -54,8 +55,8 @@ cntstart() {
  csum=$(( $csum+${1:-0} ))
 # current start time = 0 ?
  if test X$cstart = X0
-# then start at current number of seconds since epoch (1970-Jan-1)
- then cstart=$now
+# then start at current number of minutes since epoch (1970-Jan-1)
+ then cstart=$nowm
 # else don't change anything, counter already running
  fi
 #echo : after cntstart: $cnt $csum $cstart
@@ -68,8 +69,8 @@ cntstop() {
 # current start time != 0 ?
  if test X$cstart != X0
  then
-# calculate lapsed minutes with rounding to nearest minute
-  delta=$(( ($now-$cstart+30)/60 ))
+# calculate lapsed minutes
+  delta=$(( $nowm-$cstart ))
   csum=$(( $csum+$delta ))
 # and stop counter
   cstart=0
