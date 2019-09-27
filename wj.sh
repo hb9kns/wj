@@ -8,9 +8,8 @@ editor=${editor:-/bin/ed -p:}
 # special counter name for grand total
 cntot='-total-'
 
-# now as seconds since epoch (1970-1-1) and as rounded minutes
-now=`date +%s`
-nowm=$(( ($now+30)/60 ))
+# now as minutes since epoch (1970-1-1)
+nowm=$(( `date +%s` / 60 ))
 
 # host running this script
 hostn=${HOST:-`hostname`}
